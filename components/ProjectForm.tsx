@@ -5,12 +5,31 @@ import Image from "next/image";
 import FormField from "./FormField";
 import { categoryFilters } from "@/constants";
 import CustomMenu from "./CustomMenu";
+import Button from "./Button";
+import { createNewProject, fetchToken } from "@/lib/actions";
+import { useRouter } from "next/navigation";
 type Props = {
 	type: string;
 	session: SessionInterface;
 };
 const ProjectForm = ({ type, session }: Props) => {
-	const handleFormSubmit = (e: React.FormEvent) => {};
+	const router = useRouter();
+	const handleFormSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		setIsSubmitting(true);
+		const { token } = await fetchToken();
+		try {
+			if (type === "create") {
+				await createNewProject(form, session?.user?.id, token);
+				router.push("/");
+			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 	const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
 		const file = e.target.files?.[0];
@@ -29,7 +48,7 @@ const ProjectForm = ({ type, session }: Props) => {
 	const handleStateChange = (fieldName: string, value: string) => {
 		setForm((prev) => ({ ...prev, [fieldName]: value }));
 	};
-	const [isSubmittin, setIsSubmittin] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const [form, setForm] = useState({
 		title: "",
@@ -101,7 +120,16 @@ const ProjectForm = ({ type, session }: Props) => {
 			/>
 
 			<div className="flexStart w-full">
-				<button type="button"> Create</button>
+				<Button
+					title={
+						isSubmitting
+							? `${type === "create" ? "Creating" : "Ending"}`
+							: `${type === "create" ? "Create" : "Edit"}`
+					}
+					type="submit"
+					leftIcon={isSubmitting ? "" : "/plus.svg"}
+					submitting={isSubmitting}
+				></Button>
 			</div>
 		</form>
 	);
