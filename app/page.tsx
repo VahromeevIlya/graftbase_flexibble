@@ -59,7 +59,6 @@ const Home = async ({ searchParams: { category, endcursor } }: Props) => {
 						userId={node?.createdBy?.id}
 					/>
 				))}
-				C
 			</section>
 			<LoadMore
 				startCursor={pagination.startCursor}
